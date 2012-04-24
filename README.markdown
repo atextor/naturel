@@ -1,13 +1,13 @@
-Naturel Version 1.0.0 - Februar 2008
-Andreas Textor und Ralph Erdt.
-====================================
+Naturel Version 1.0.0 
+=====================
+February 2008 - Andreas Textor und Ralph Erdt.
 
-Note: The detailed documentation and some parts of this README are available in German only, sorry!
+Note: The detailed documentation is available in German only, sorry!
 
 Introduction
 ------------
 
-turel (not to confuse with (http://en.wikipedia.org/wiki/NATURAL "NATURAL") is a programming language
+Naturel (not to confuse with [NATURAL](http://en.wikipedia.org/wiki/NATURAL) is a programming language
 that was developed by Ralph Erdt and Andreas Textor for the Compiler Construction class at the
 University of Applied Sciences Wiesbaden in winter semester 07/08.
 Naturel stands for "Naturel is the Andreas Textor Und Ralph Erdt Language" ("und" is the german word for "and").
@@ -27,7 +27,7 @@ allowed in Naturel, overloading is not allowed.
 	--e:num; // private static
 	##f:num; // protected static
 
-Naturel's grammar was transformed into a parser using the parser generator (http://sablecc.org/ "SableCC").
+Naturel's grammar was transformed into a parser using the parser generator [SableCC](http://sablecc.org/).
 The complete documentation, sample programs and source code of the compiler are contained in this directory.
 The following block shows a short sample program that can be compiled using the compiler. num and str are
 the built-in data types for integers and strings, the static new method is the constructor of the class.
@@ -69,37 +69,36 @@ Contents
 --------
 
 	dokumentation/
-		doku.pdf                  - Dokumentation im PDF-Format
-		doku.xml                  - Dokumentation-Quelldatei
+		doku.pdf                  - Documentation in PDF format
+		doku.xml                  - Documentation source file
 	
 	grammatik/
-			grammatik-naturel.txt - Grammatik der Sprache im SableCC-Format
-			Core.h, Core.c        - Standardbibliothek
-			*.naturel             - Beispiel- und Testprogramme
-			mkProjekt.sh          - Generiert aus der Grammatik den Parser
+			grammatik-naturel.txt - Grammar of the language in SableCC format
+			Core.h, Core.c        - Standard library
+			*.naturel             - Sample and test programs
+			mkProjekt.sh          - Generates the parser from the grammar
 	
 		naturel/
-			Quellcode und Klassendateien
+			Source code and class files
 	
 	demo-bin/
 		fibonacci    \
-		helloworld    |_____ Vorkompilierte Testprogramme
+		helloworld    |_____ Precompiled test programs
 		punkt         |
 		zahlenraten  /
 
-Hinweis: Dieses Verzeichnis ist auch ein Eclipse-Projekt-Verzeichnis
-und kann daher in Eclipse importiert werden.
+Note: This directory is also an Eclipse project.
 
 Quickstart
 ----------
 
-# Hilfe:
-java naturel.Main -h
+Help:
+	java naturel.Main -h
 
-# Kompilieren:
-java naturel.Main -o zahlenraten grammatik/zahlenraten.naturel
+Compile:
+	java naturel.Main -o zahlenraten grammatik/zahlenraten.naturel
 
-# Parser bauen:
-cd grammatik
-./mkProjekt.sh
+Generate parser:
+	cd grammatik
+	./mkProjekt.sh
 
