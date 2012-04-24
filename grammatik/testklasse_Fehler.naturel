@@ -1,0 +1,51 @@
+/* Eine Testklasse mit Fehlern zum testen des TypeCheckers
+   Hier Test der Klassen, Interfaces und Klassenmethoden */
+
+// Fehler 1: Fehlende Superklasse
++Fehler1< NichtDa {}
+
+// Fehler 2: Fehlendes Interface
++Fehler2 : NichtDa {}
+
+// Fehler 3a: Superklasse als Interface
++Super3a {}
++Fehler3a : Super3a {}
+// Fehler 3b: Interface als Superklasse
+++Interface3b {}
++Fehler3b < Interface3b {}
+
+// Fehler 4: Fehlende implementierung einer Methode 
+++Interface4 {
+	+methode() {}
+}
++Fehler4 : Interface4 {}
+
+// Fehler 5: Nicht alle Parameter  einer Implementierung
+++Interface5 {
+	+methode5A(A: str) {}
+	+methode5B(A: str, B: str) {}
+	+methode5C(A: str, B: str) {}
+}
++Fehler5 : Interface5 {
+	+methode5A() {}
+	+methode5B(B: str) {}
+	+methode5C(A: str) {}
+}
+
+// Fehler 6a: Parameter falsche Reihenfolge
+//        6b: Zuviel Parameter
+//       (6c: Zuwenige Paramter ist durch 5 getestet) 
+++Interface6 {
+	+methode6A(A: str, B: str) {}
+	+methode6B(A: str, B: str) {}
+}
++Fehler6 : Interface6 {
+	+methode6A(B: str, A: str) {}
+	+methode6B(A: str, B: str, C: str) {}
+}
+
+/* TODO: Was muss noch gebaut werden:
+Test: Sichtbarkeiten.
+
+
+Ach ja: Ein guter Tipp: "Never test an unhandeld errorcondition!" :-D */

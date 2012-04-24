@@ -1,0 +1,107 @@
+/* Naturel Beispielprogramm 2: Fibonacci-Berechnungen */
+
++TolleKlasse {
+ +wert : num;
+ +setWert(n:num) {
+  wert := n;
+ }
+ 
+ +getWert():num {
+  return(wert);
+ }
+}
+
++Fibonacci < TolleKlasse {
+ -zahl:num := 0;
+ 
+ // Überschrieben
+ +getWert():num {
+  return(1);
+ }
+
+ +tostr():str {
+   return(getZahl().tostr());
+ } 
+ 
+ +getZahl():num {
+    return(zahl);
+ }
+ 
+ ++new(param : num) {
+   if (param <= 1) {
+      zahl := 1;
+   }
+   if (param > 1) {
+      p1:num := param - 1;
+      p2:num := param - 2;
+      voriges:Fibonacci := Fibonacci.new(p1);
+      vorvoriges:Fibonacci := Fibonacci.new(p2);
+      a:num := voriges.getZahl();
+      b:num := vorvoriges.getZahl();
+      zahl := a + b;
+   }
+ }
+ 
+ ++berechne(zahl : num) : num {
+   if (zahl <= 1) {
+     return(1);
+   }
+   result:num := berechne(zahl - 1) + berechne(zahl - 2);
+   return(result);
+ }
+ 
+ ++main(args:str[]):num {
+   out("Parameter des Programms: " + args.tostr() + "\n");
+   
+   out("Setter/Getter-Test: ");
+   toll:TolleKlasse := TolleKlasse.new();
+   toll.setWert(3);
+   out(toll.getWert().tostr() + "\n");
+   
+   max:num := 15;
+   out("Fibonacci Rekursiv:\n");
+   i:num := 0;
+   while (i <= max) {
+      fib:num := Fibonacci.berechne(i);
+      out(fib.tostr() + " ");
+      i := i + 1;
+   }
+   
+   voriges:num := 1;
+   aktuelles:num := 1;
+   out("\n\nFibonacci iterativ:\n" + voriges.tostr() + " " + aktuelles.tostr() + " ");
+
+   test:str := "Blah" + voriges.tostr() + "\n";
+   test2:str := "Blah".append("\n");
+   
+   i := 2;
+   while (i <= max) {
+      x:num := voriges;
+      voriges := aktuelles;
+      aktuelles := voriges + x;
+      out(aktuelles.tostr() + " ");
+      i := i + 1;
+   }
+
+   out("\n\nFibonacci Rekursiv (Objekte):\n");
+   i := 0;
+   while (i <= max) {
+	   fibu:Fibonacci := Fibonacci.new(i);
+	   out(fibu.tostr() + " ");
+	   i := i + 1;
+   }
+   
+   out("\n\n");
+   out("Test Inlineerzeugen und anwenden (Fibonacci(10)): " + Fibonacci.new(10).getZahl().tostr() + "\n\n");
+   out("\n\n");
+   out("Umwandeln von str: ");
+   j:str := "4712"; // - ne nummer zu stark
+   out("Als str: " + j);
+   k:num := j.asnum();
+   out("; Als num: " + k.tostr());
+   out("\n\n");
+
+   return(0);
+ }
+}
+

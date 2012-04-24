@@ -1,0 +1,429 @@
+Package naturel;
+
+Helpers
+	tab			= 9;
+	cr			= 13;
+	lf			= 10;
+	eol			= cr lf | cr | lf;
+	blank			= (' ' | tab | eol)+;
+	
+	//all			= [0 .. 127];
+	all			= [0x0 .. 0xffffff];
+	digit			= ['0' .. '9'];
+	nondigit		= ['_' + [['a' .. 'z'] + ['A' .. 'Z']]];
+	digit_sequence		= digit+;
+	fractional_constant	= digit_sequence? '.' digit_sequence | digit_sequence '.';
+	sign			= '+' | '-';
+	escape_sequence		= '\' ''' | '\"' | '\?' | '\\' | '\a' | '\b' | '\f' | '\n' | '\r' | '\t' | '\v';
+	s_char			= [all - ['"' + ['\' + [10 + 13]]]] | escape_sequence;
+	s_char_sequence		= s_char+;
+	nonzero_digit		= ['1' .. '9'];
+	decimal_constant	= nonzero_digit digit*;
+	not_star		= [all - '*'];
+	not_star_slash		= [not_star - '/'];
+	
+	not_cr_lf		= [all -[cr + lf]];
+	short_comment		= '//' not_cr_lf* eol;
+	long_comment		= '/*' not_star* '*'+ (not_star_slash not_star* '*'+)* '/';
+	comment			= short_comment | long_comment;
+
+
+Tokens
+	comment			= comment;
+
+	l_par			= '(';
+	r_par			= ')';
+	l_bracket		= '[';
+	r_bracket		= ']';
+	l_brace			= '{';
+	r_brace			= '}';
+	plus_plus		= '++';
+	minus_minus		= '--';
+	hash_hash		= '##';
+
+	star_equal		= '*=';
+	div_equal		= '/=';
+	mod_equal		= '%=';
+	plus_equal		= '+=';
+	minus_equal		= '-=';
+	ampersand_equal		= '&=';
+	bar_equal		= '|=';
+	plus			= '+';
+	minus			= '-';
+	mult			= '*';
+	div			= '/';
+	hash			= '#';
+	semi			= ';';
+	comma			= ',';
+	assign			= ':=';
+	colon			= ':';
+	mod			= '%';
+	ampersand		= '&';
+	quest_mark		= '?';
+	bar			= '|';
+	xor			= '^';
+	dot			= '.';
+	ellipsis		= '..';
+	eq			= '=';
+	neq			= '!=';
+	lteq			= '<=';
+	lt			= '<';
+	gteq			= '>=';
+	gt			= '>';
+	excl_mark		= '!';
+
+	blank			= blank;
+	
+	as			= 'as';
+	if			= 'if';
+	else			= 'else';
+	while			= 'while';
+	for			= 'for';
+	//return			= 'return';
+	use			= 'use';
+	string			= '"' s_char_sequence '"';
+	identifier 		= nondigit ( digit | nondigit ) *;
+ 	float_sequence		= digit_sequence* '.' digit_sequence+;
+ 	digit_sequence		= digit_sequence;
+	
+Ignored Tokens
+
+	comment,
+	blank;
+
+Productions
+
+// Programm
+	naturel {-> naturel}	= uses_list? classes_list
+					{-> New naturel([uses_list.import], [classes_list.class])}
+				;
+	
+// Uses
+	uses_list {-> import*}	= {single} uses
+					{-> [uses.import]}
+				| {multiple} uses uses_list
+					{-> [uses.import, uses_list.import]}
+				;
+
+	use_as {-> optional_identifier}	= {one} as [id]:identifier
+					{-> New optional_identifier.one(id)}
+				| {none}
+					{-> New optional_identifier.none()}
+				;
+
+	uses {-> import}	= use [id]:identifierclass [as]:use_as semi
+					{-> New import([id.identifier], as.optional_identifier)}
+				;
+
+// Klassen und Interfaces
+	classes_list {-> class*}= {single} classes
+					{-> [classes.class]}
+				| {multiple} classes classes_list
+					{-> [classes.class, classes_list.class]}
+				;
+	
+	classes	{-> class}	= [m]:modifier [ic]:identifierclass [super]:inherits [if]:interfaces l_brace [vars]:variable*
+					[methods]:method* r_brace
+					{-> New class(m.modifier, [ic.identifier], [super.identifier], [if.interface],
+					[vars.declaration], [methods.method])}
+				;
+		
+	modifier {-> modifier}	= {publ} plus
+					{-> New modifier.publ()}
+				| {priv} minus
+					{-> New modifier.priv()}
+				| {prot} hash
+					{-> New modifier.prot()}
+				| {publ_stat} plus_plus
+					{-> New modifier.publ_stat()}
+				| {priv_stat} minus_minus
+					{-> New modifier.priv_stat()}
+				| {prot_stat} hash_hash
+					{-> New modifier.prot_stat()}
+				;
+	
+	identifierclass	{-> identifier*}	= identifier identifierclass_next*
+					{-> [identifier, identifierclass_next.identifier]} 
+				;
+		
+	identifierclass_next {-> identifier}	= dot identifier
+					{-> identifier}
+				;
+
+	interfaces {->interface*}	= {one} colon interface [next]:interfaces_next?
+					{-> [interface, next.interface]}
+				| {none}
+					{-> []}
+				;
+	
+	interfaces_next {->interface*}	= {one} comma interface interfaces_next?
+					{-> [interface, interfaces_next.interface]}
+				;
+
+	interface {->interface}	= [id]:identifierclass
+					{-> New interface.interface([id.identifier])}
+				;
+	
+	inherits {-> identifier*}	= {one} lt [ic]:identifierclass
+					{-> [ic.identifier]}
+				| {none}
+					{-> []}
+				;
+
+// Variablen, Methoden, Parameter
+	variable_assign {-> exp}= {one} assign expression
+					{-> expression.exp}
+				| {none}
+					{-> New exp.none()}
+				;
+				
+	array {-> flag}		= {true} l_bracket r_bracket
+					{-> New flag.true()}
+				| {false}
+					{-> New flag.false()}
+				;
+				
+	tuple {-> variable*}	= l_par [mp]:method_params r_par
+					{ -> [mp.variable]}
+				;
+				
+	type {-> type}		= {ident} [id]:identifier array
+					{-> New type.type(id, array.flag)}
+				| {tup} [t]:tuple array
+					{-> New type.tuple([t.variable], array.flag)}
+				;
+	
+	method_param {-> variable}	= {named} [id]:identifier colon [t]:type [value]:variable_assign
+					{-> New variable.named(id, t.type, value.exp)}
+				| {unnamed} colon [t]:type [value]:variable_assign
+					{-> New variable.unnamed(t.type, value.exp)}
+				;
+
+	var_decl {-> variable}	= {var} [id]:identifier colon [t]:type [value]:variable_assign
+					{-> New variable.named(id, t.type, value.exp)}
+				;
+	
+	variable {-> declaration}	= [m]:modifier [var]:var_decl semi
+					{-> New declaration(m, var.variable)}
+				;
+
+	method_params {-> variable*}	= {one} [mp]:method_param [next]:method_params_next?
+					{-> [mp.variable, next.variable]}
+				| {none}
+					{-> []}
+				;
+	
+	method_params_next {-> variable*}	= comma [mp]:method_param [next]:method_params_next?
+					{-> [mp.variable, next.variable]}
+				;
+
+	method_type {->type}	= {one} colon type
+					{-> type.type}
+				| {none}
+					{-> New type.default()}
+				;
+	
+// Blocks und Statements
+	block {-> block}	= l_brace statements* r_brace
+					{-> New block([statements.statement])}
+				;
+	
+	method {-> method}	= [m]:modifier [name]:identifier l_par [params]:method_params r_par [type]:method_type block
+					{-> New method(m.modifier, name, type.type, [params.variable], block)}
+				;
+	
+	statements {-> statement}	= {var} [var]:method_param semi
+					{-> New statement.declaration(var.variable)}
+				| {if}   if_statement
+					{-> if_statement.statement}
+				| {while} while_statement
+					{-> while_statement.statement}
+				| {assignment} assignment
+					{-> assignment.statement}
+				| {stat} expression semi
+					{-> New statement.exp(expression.exp)}
+				;
+
+	assignment {-> statement}	= [id]:expr5 assign [exp]:expression semi
+					{-> New statement.assignment(id.exp, exp.exp)}
+				;
+	
+	if_statement {-> statement}	= if l_par [cond]:expression r_par block
+					{-> New statement.if(cond.exp, block)}
+				;
+				
+	while_statement {-> statement}	= while l_par [cond]:expression r_par block
+					{-> New statement.while(cond.exp, block)}
+				; 
+
+// Logische Operatoren
+	expression {-> exp}	= {and} [e1]:expr2 ampersand [e2]:expression
+					{-> New exp.and(e1.exp, e2.exp)}
+				| {or} [e1]:expr2 bar [e2]:expression
+					{-> New exp.or(e1.exp, e2.exp)}
+				| {xor} [e1]:expr2 xor [e2]:expression
+					{-> New exp.xor(e1.exp, e2.exp)}
+				| {expr2} [e1]:expr2
+					{-> e1.exp}
+				;
+
+// Vergleichsoperatoren
+	expr2 {-> exp}		= {eq} [e1]:expr3 eq [e2]:expr2
+					{-> New exp.eq(e1.exp, e2.exp)}
+				| {neq} [e1]:expr3 neq [e2]:expr2
+					{-> New exp.neq(e1.exp, e2.exp)}
+				| {lteq} [e1]:expr3 lteq [e2]:expr2
+					{-> New exp.lteq(e1.exp, e2.exp)}
+				| {lt} [e1]:expr3 lt [e2]:expr2
+					{-> New exp.lt(e1.exp, e2.exp)}
+				| {gteq} [e1]:expr3 gteq [e2]:expr2
+					{-> New exp.gteq(e1.exp, e2.exp)}
+				| {gt} [e1]:expr3 gt [e2]:expr2
+					{-> New exp.gt(e1.exp, e2.exp)}
+				| {expr3} [e1]:expr3
+					{-> e1.exp}
+				;
+
+// Strichrechnung
+	expr3 {-> exp}		= {minus} [e1]:expr4 minus [e2]:expr3
+					{-> New exp.minus(e1.exp, e2.exp)}
+				| {plus} [e1]:expr4 plus [e2]:expr3
+					{-> New exp.plus(e1.exp, e2.exp)}
+				| {expr4} [e1]:expr4
+					{-> e1.exp}
+				;
+
+// Punktrechnung
+	expr4 {-> exp}		= {mult} [e1]:expr5 mult [e2]:expr4
+					{-> New exp.mult(e1.exp, e2.exp)}
+				| {div} [e1]:expr5 div [e2]:expr4
+					{-> New exp.div(e1.exp, e2.exp)}
+				| {mod} [e1]:expr5 mod [e2]:expr4
+					{-> New exp.mod(e1.exp, e2.exp)}
+				| {expr5} [e1]:expr5
+					{-> e1.exp}
+				;
+
+// Punktoperator
+	expr5 {-> exp}		= {dot} [e1]:faktor dot [e2]:expr5
+					{-> New exp.dot(e1.exp, e2.exp)}
+				| {faktor} [e1]:faktor
+					{-> e1.exp}
+				;
+
+// Literale Expressions usw.
+	par {->exp*}		= {one} l_par [exp]:expression [next]:expression_next* r_par
+					{-> [exp.exp, next.exp]}
+				| {empty} l_par r_par
+					{-> [New exp.none()]}
+				| {none}
+					{-> []}
+				;
+
+	expression_next {-> exp}= comma expression
+					{-> expression.exp}
+				;
+
+	faktor {-> exp}		= {id} [id]:identifier par
+					{-> New exp.methodcall(id, [par.exp])}
+				| {str} string
+					{-> New exp.string(string)}
+				| {num} [num]:digit_sequence
+					{-> New exp.num(num)}
+				| {fnum} [fnum]:float_sequence
+					{-> New exp.fnum(fnum)}
+				| {expr} l_par [exp]:expression [next]:expression_next* r_par
+					{-> New exp.tuple([exp.exp, next.exp])}
+				; 
+
+Abstract Syntax Tree
+	naturel			= [uses]:import* [classes]:class*
+				;
+				
+	optional_identifier	= {one}		[id]:identifier
+				| {none}
+				;
+
+	import			= [name]:identifier* [as]:optional_identifier
+				;
+
+	// Der Name einer Klasse ist eine Liste, weil darin der qualifizierte Name enthalten ist
+	// (fuer jeden Abschnitt des Paketpfades ein identifier)
+	class			= [modifier]:modifier [name]:identifier* [super]:identifier* [interfaces]:interface*
+						[vars]:declaration* [methods]:method*
+				;
+
+	// Ein Interface im AST hat nur einen Namen, noch KEINE Liste von Methoden (die muss spaeter in
+	// der Codegenerierung gebaut werden). Das Interface wird verwendet am Code hinter dem ":" ("implements"),
+	// und erscheint dort als Punkt-getrennte Liste von Identifiern.
+	interface		= {interface}	[name]:identifier*
+				;
+
+	modifier		= {publ}
+				| {priv}
+				| {prot}
+				| {publ_stat}
+				| {priv_stat}
+				| {prot_stat}
+				;
+
+	method			= modifier [name]:identifier [type]:type [params]:variable* [body]:block
+				;
+
+	declaration		= [modifier]:modifier [var]:variable
+				;
+
+	variable		= {unnamed}	[type]:type [val]:exp
+				| {named}	[name]:identifier [type]:type [val]:exp
+				;
+
+	flag			= {true}
+				| {false}
+				;
+
+	// Der Default-Type wird verwendet, wenn fuer eine Methode kein Rueckgabetyp angegeben wird
+	type			= {type}	[name]:identifier [array]:flag
+				| {tuple}	[vars]:variable* [array]:flag
+				| {default}
+				;
+
+	block			= [statements]:statement*
+				;
+
+	statement		= {if}		[cond]:exp block
+				| {while}	[cond]:exp block
+				| {assignment}	[id]:exp [val]:exp
+				| {declaration}	[var]:variable
+				| {exp} 	exp
+				;
+
+	// Auch die Expression kann none sein - Z.B. als Initialisierungswert bei Variablendeklarationen (den man weglassen kann)
+	exp			= {plus}	[l]:exp [r]:exp
+				| {minus}	[l]:exp [r]:exp
+				| {div}		[l]:exp [r]:exp
+				| {mult}	[l]:exp [r]:exp
+				| {mod}		[l]:exp [r]:exp
+				| {and}		[l]:exp [r]:exp
+				| {or}		[l]:exp [r]:exp
+				| {xor}		[l]:exp [r]:exp
+				| {eq}		[l]:exp [r]:exp
+				| {neq}		[l]:exp [r]:exp
+				| {lteq}	[l]:exp [r]:exp
+				| {lt}		[l]:exp [r]:exp
+				| {gteq}	[l]:exp [r]:exp
+				| {gt}		[l]:exp [r]:exp
+				| {dot}		[l]:exp [r]:exp
+				| {num}		[num]:digit_sequence
+				| {fnum}	[fnum]:float_sequence
+				| {string}	[str]:string
+				| {tuple}	[values]:exp*
+				| {identifier}  [id]:identifier
+				| {methodcall}	[id]:identifier [args]:exp*
+				| {list}	[list]:exp*
+				| {methodcalldef} [clazz]:exp [method]:exp
+				| {none}
+				;
+				
+
+
+// vim: tabstop=8 textwidth=130 softtabstop=8

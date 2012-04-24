@@ -1,0 +1,61 @@
+/*
+ * Testklasse für Grammatik: Sollte vom Parser akzeptiert werden.
+ * Wird höchstwahrscheinlich nicht kompiliert, wenn nicht alle Sprachfeatures
+ * umgesetzt sind.
+ */
+
+use x.y.Z;
+use a.b.C as D;
+
++Package.subpackage.Interface /*blub*/ {
+ +A1:bla;
+}
+
+// asljdhfa
+/* blah*/
++test1  { 
+ --b2:blubb[] := noe;
+}
+
+-test2 < test1  {
+ --b2:blubb[] := noe;
+ +methodeT():(:int,:int)[] {} 
+ +methodeA() {}
+ --methodeB(bla:blubb, laber :blabla ):nix{
+  x1:num := 1;
+  x2:num;
+  x3:fnum := 1.0;
+  x4:fnum;
+  x5:str := "hallo" + 5;
+  x6:str;
+  x7:bool := true;
+  x8:bool := false;
+  x9:bool;
+  x10:bool := x7 = x8;
+  x11:num := x1 + x2;
+  x12:bool := x1 = x11;
+  if (bla) { }
+  if (bla) { }
+  if (bla<blubb) { }
+  if (bla<2) {}
+  if (bla<2+5*(5+xyz)) { }
+  if ((3+x*2)>bla) {}
+  if (bla="drei") {}
+  if (bla) {
+    x2:num := 10;
+    x4:fnum := 1.0;
+  }
+  while (bla) { }
+  while (blah) {}
+  objekt.methode1().methode2();
+  x:(x:int, y:int) := (1,objekt.methode(3, blah));
+  x:(x:int := 1, y:int := 2) := (3,4);
+  //(x:int, y:int);
+ }
+}
+
+-test3 < test1 : P1.SP2.I1 { 
+ #methodeC(variable:xyz) {}
+}
+
+#test4 < test1 : I1, a.b.I2 { }

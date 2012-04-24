@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<head>
+		<title>Naturel - Sprache und Compiler - Dokumentation</title>
+		<author>
+			<name>Andreas Textor und Ralph Erdt</name>
+			<additional>Compilerbau WS07/08</additional>
+		</author>
+		<date>Februar 2008</date>
+	</head>
+
+	<body>
+		<nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/>
+		<br/><nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/>
+		<nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/>
+		<nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/><nbsp/><br/>
+		Autoren: Ralph Erdt und Andreas Textor<br/>
+		<br/><br/>
+		Wir erklären hiermit, dass das vorliegende Programm ausschließlich von
+		Ralph Erdt und Andreas Textor und ausschließlich unter der Nutzung der
+		erlaubten Hilfsmittel erstellt wurde. 
+		<pagebreak/>
+		
+		<section name="Die Sprache Naturel">
+			<e>Naturel</e> steht für <q><e>N</e>aturel ist die <e>A</e>ndreas <e>T</e>extor
+			<e>U</e>nd <e>R</e>alph <e>E</e>rdt <e>L</e>anguage</q>. Die Sprache ist
+			objektorientiert und orientiert sich mit der Syntax an C, Java, Pascal und UML. 
+			Bei der Syntax wurde auf für die Semantik nicht notwendige Schlüsselwörter wie z.B.
+			<v>class</v> verzichtet, andere Schlüsselwörter werden durch Symbole dargestellt,
+			wie z.B. <v>+</v> statt <v>public</v>. Kommentare werden wie in Java und C++ üblich
+			durch <v>//</v> bzw. <v>/* ... */</v> notiert.
+			Überschreiben von Methoden ist erlaubt in Naturel, überladen ist nicht erlaubt.
+
+			<subsection name="Syntax">
+				In Naturel gilt für Bezeichner die selbe Nomenklatur wie in C,
+				es gibt keine durch den Compiler vorgeschriebenen Gross-/Kleinschreibungsregeln
+				(Klassen dürfen also z.B. auch mit einem Kleinbuchstaben beginnen). Im folgenden
+				werden zur Klarheit die aus Java bekannten Benennungsregeln verwendet.
+				Jede Anweisung wird durch ein Semikolon abgeschlossen.
+				Wie in Pascal und anderen Sprachen werden die Typen von Variablen mit einem
+				Doppelpunkt getrennt hinter den Variablennamen geschrieben.
+				Zuweisung geschieht über den <v>:=</v>-Operator, Vergleich durch den
+				<v>=</v>-Operator.
+				Methoden und Attribute haben die Sichtbarkeiten public, private und protected, die 
+				durch die UML-Modifier <v>+</v>, <v>-</v> und <v>#</v> ausgedrückt werden. 
+				Eine Klassenmethode oder -variable hat statt des in Java verwendeten <v>static</v>
+				ein doppeltes Modifierzeichen.
+				<listing>
+					+a:num;  // public
+					-b:num;  // private
+					#c:num;  // protected
+					++d:num; // public static
+					--e:num; // private static
+					##f:num; // protected static
+				</listing>
+				Um auf Methoden und Attribute einer Klasse oder eines Objektes zuzugreifen, wird die
+				aus Java bekannte Punkt-Notation verwendet:
+				<listing>
+					Klasse.klassenMethode();
+					objekt.methode();
+					x:str := objekt.getWert().tostr();
+				</listing>
+			</subsection>
+
+			<subsection name="Module und Packages">
+				Jedes Modul (d.h. Quellcodedatei) beginnt optional mit einer Liste von
+				<v>use</v>-Anweisungen (entspricht Javas <v>import</v> und kann danach beliebig viele
+				Klassen enthalten. Die Paket-Struktur und -Syntax ist ebenfalls an Java angelehnt:
+				<listing>
+					use paket.unterpaket.Klasse;
+					use paket.unterpaket.Klasse2;
+				</listing>
+				Der voll qualifizierte Name einer Klasse (also Klassenname mit vollem Paket-Pfad)
+				darf im Quellcode nicht verwendet werden, lediglich der Klassenname. Sollen mehrere
+				Klassen mit dem selben Namen aus unterschiedlichen Paketen verwendet werden, so
+				wird dazu eine lokale Umbenennung der Klasse mittels <v>as</v> verwendet:
+				<listing>
+					use paket1.Klasse;
+					use paket2.Klasse as KlasseAusPaket2;
+				</listing>
+			</subsection>
+
+			<subsection name="Klassen">
+				Klassen in Naturel haben genau eine Oberklasse (Einfachvererbung) und können
+				beliebig viele Interfaces implementieren, wie in Java. Da weder das Schlüsselwort
+				<v>class</v> noch ein vergleichbares vorhanden ist, folgt auf den Modifier der
+				Klasse direkt der Name. An der Stelle der Klassendefinition wird auch der
+				Paket-Pfad angegeben, in dem sich die Klasse befindet.
+				Eine Klassendefinition kann folgendermaßen aussehen:
+				<listing>
+					+paket.unterpaket.Klasse &lt; Oberklasse : Interface1, Interface2 { ... }
+				</listing>
+
+				Um ein Interface zu schreiben, wird der <v>++</v>-Modifier verwendet:
+				<listing>
+					++Interface { ... }
+				</listing>
+			</subsection>
+
+			<subsection name="Methoden">
+				Eine Methode wird definiert durch einen Modifier, den Methodennamen, eine Liste
+				von Parametern und einen optionalen Rückgabetyp:
+				<listing>
+					+methodeOhneRueckgabe(a:num, b:num) { ... }
+					+methodeMitRueckgabe(a:num, b:num):num { return(0); }
+					++statischeMethode() { ... }
+				</listing>
+
+				Eine spezielle Methode ist der Konstruktor einer Klasse. Der Konstruktor wird
+				durch die öffentliche statische Methode <v>new</v> ausgedrückt (Ein
+				Rückgabetyp wird nicht explizit angegeben, ebenso kein <v>return</v>).
+			</subsection>
+
+			<subsection name="Datentypen">
+				Es gibt die eingebauten Datentypen <v>bool</v>, <v>num</v>, <v>fnum</v>,
+				<v>str</v> und <v>Object</v>. <v>Object</v> ist wie in Java die Basisklasse
+				aller Objekte. Obwohl die Schreibweise das nicht vermuten lässt, sind auch
+				bool, num, fnum und str echte Objekte und keine <q>Basisdatentypen</q> wie
+				in Java; sie haben <v>Object</v> als Oberklasse.
+				Die Klassen haben folgende Methoden:<br/>
+				<itemize>
+					<item>
+						<v>Object: tostr():str</v>
+					</item>
+					<item>
+						<v>num: tostr():str, addNum(num):num, subNum(num):num,</v><br/>
+						<v>multNum(num):num, divNum(num):num, modNum(num):num,</v><br/>
+						<v>eq(num):bool, neq(num):bool, lteq(num):bool, lt(num):bool,</v><br/>
+						<v>gteq(num):bool, gt(num):bool</v><br/>
+						Es gibt einen Konstruktor, der ein <v>num</v>-Objekt mit einem Ganzzahlliteral
+						initialisiert. Dieser wird nur intern genutzt und wird nicht explizit im
+						Naturel-Programm aufgerufen (hier wird nur das Ganzzahlliteral geschrieben).
+					</item>
+					<item>
+						<v>fnum: analog zu num</v>
+					</item>
+					<item>
+						<v>str: tostr():str, size():num, append(str):str, asnum():num</v><br/>
+						Es gibt einen Konstruktor, der ein <v>str</v>-Objekt mit einem Stringliteral
+						initialisiert. Dieser wird nur intern genutzt und wird nicht explizit im
+						Naturel-Programm aufgerufen (hier wird nur das Stringliteral geschrieben).
+					</item>
+				</itemize>
+
+				Darüber hinaus gibt es einen Listen-Datentyp <v>list</v>, von dem nicht explizit
+				Objekte erzeugt werden, sondern der implizit für andere Typen zur Verfügung steht:
+				<listing>
+					x:num[];
+					y:str[];
+				</listing>
+				Für den Listentyp exisitiert ein Konstruktor, der ein Object und eine Liste als
+				Argument bekommt und daraus eine neue Liste erzeugt. Ausserdem besitzt eine Liste
+				die Methoden <v>tostr():str, append(Object):void</v>.
+				Die Liste speichert zwar intern nur Objects, die Typsicherheit wird aber dadurch
+				gegeben, dass eine Liste immer nur als <q>Erweiterung</q> eines Types auftritt
+				(d.h. eine <v>str</v>-Liste kann keine <v>num</v>-Objekte enthalten).
+			</subsection>
+
+			<subsection name="Operatoren">
+				Es gibt die Operatoren <v>+ - * / % = := &lt; &lt;= != &gt; &gt;= . ! &amp; ^</v> |.
+				Dabei ist <v>=</v> der Vergleichsoperator und <v>:=</v> der Zuweisungsoperator.
+				Arithmetische Operationen und Vergleichsoperatoren sind nur für Zahlen definiert,
+				allerdings kann der <v>+</v>-Operator auch auf <v>str</v>-Objekten aufgerufen werden,
+				was einem Aufruf der <v>append</v>-Methode entspricht.
+			</subsection>
+
+			<subsection name="Kontrollstrukturen">
+				Naturel enthält die aus C und Java bekannten Kontrollstrukturen für Verzweigungen
+				<v>if</v> und Schleifen <v>while</v>:
+				<listing>
+					if ((2 + 3) = 5) {
+						...
+					}
+					x:num := 1;
+					while (x &lt; 5) {
+						...
+						x := x + 1;
+					}
+				</listing>
+			</subsection>
+
+			<subsection name="Beispielklasse">
+				<listing>
+					+Punkt {
+						-x:num;
+						-y:num;
+
+						+getX():num { return(x); }
+						+getY():num { return(y); }
+						++new(px:num, py:num) { x := px; y := py; }
+
+						+addierePunkt(p:Punkt) {
+							x := x + p.getX();
+							y := y + p.getY();
+						}
+
+						+tostr():str {
+							return("[" + x.tostr() + "," + y.tostr() + "]");
+						}
+
+						++main(args:str[]):num {
+							p1:Punkt := Punkt.new(1, 2);
+							p2:Punkt := Punkt.new(3, 4);
+							out("Punkt 1: " + p1.tostr() + "\n");
+							out("Punkt 2: " + p2.tostr() + "\n");
+							p1.addierePunkt(p2);
+							out("Punkt 1: " + p1.tostr() + "\n");
+							return(0);
+						}
+					}
+				</listing>
+			</subsection>
+
+		</section>
+
+		<section name="Der Compiler">
+			<subsection name="Umgesetzte Features">
+				<itemize>
+					<item>Grammatik und Parser</item>
+					<item>Einfach-Vererbung</item>
+					<item>Überschreiben von Methoden</item>
+					<item>Sichtbarkeiten (public, protected, private)</item>
+					<item>Aufrufen von Methoden mit Parametern und Rückgabewerten</item>
+					<item>Auswertung von Expressions, auch hintereinandergeschaltete
+						Zugriffe auf Methoden und Attribute über den Punkt-Operator</item>
+					<item>Umfangreiche semantische Prüfung des Programmes</item>
+					<item>Standardbibliothek mit Datentypen für Object, Zahlen, Strings,
+						Listen; jeweils als Klassen</item>
+					<item>Ein- und Ausgabefunktionen in Standardbibliothek</item>
+					<item>Eigener Programm-Crash-Handler (Speicherverbrauchs-Statistik
+						falls das kompilierte Programm abstürzt</item>
+					<item>Erzeugt gültiges ANSI-C</item>
+					<item>Erzeugter Code enthält keine Schleifen mehr (C als besserer
+						Assembler)</item>
+				</itemize>
+			</subsection>
+
+			<subsection name="Nicht Umgesetzte Features">
+				<itemize>
+					<item>Pakete bzw. Auswertung von <v>use</v></item>
+					<item>Tupel-Datentyp (Unterstützung in Grammatik und Teilen
+						des Codegenerators, jedoch nicht bei Operatorenbehandlung, daher
+						nicht nutzbar)</item>
+					<item>Eigene Stack-Verwaltung, Garbage-Collector</item>
+				</itemize>
+			</subsection>
+
+			<subsection name="Visitors">
+				<subsubsection name="TypeChecker">
+					Es existieren zwei TypeChecker-Vistors (verschiedene interne Behandlung des Programmes,
+					daher nicht in einer Klasse vereinbar). Diese führen neben der Typprüfung folgende
+					semantische Überprüfungen durch:
+					<itemize>
+						<item>Fehlende Typen in Deklarationen</item>
+						<item>Falsche Initialisierung von Klassenvariablen</item>
+						<item>Es muss genau eine <v>main</v>-Methode vorhanden sein</item>
+						<item>Überladen von Methoden (wird nicht unterstützt)</item>
+						<item>Unbenannte Methodenparameter</item>
+						<item>Doppelte Methodenparameter</item>
+						<item>Falscher Typ auf linker Seite von Zuweisung</item>
+						<item>Falsche Sichtbarkeit von Interfaces</item>
+						<item>Fehlende verwendete Oberklasse</item>
+						<item>Fälschlich als Oberklasse verwendete Interfaces</item>
+						<item>Fehlendes verwendetes Interface</item>
+						<item>Fehlende oder falsch getypte Methodenimplementierung aus Interface in Klasse</item>
+					</itemize>
+					Fehlende oder falsche Variablen, Methoden oder Typen werden größtenteils in anderen
+					Visitors oder während der Codegenerierung abgeprüft, um Codeverdoppelung zu vermeiden.
+				</subsubsection>
+
+				<subsubsection name="SammleKlassenMethoden">
+					<!-- Den ganz am Anfang geschoben, weil hier am besten die grundlegenden Funktionen
+					     erklärt werden -->
+					Dieser Visitor sammelt alle Klassen und deren Variablen und Methoden.
+					Da immer wieder Informationen über die Klassenstruktur gebraucht werden,
+					werden diese hier gesammelt. Die ganzen Informationen werden in den Strukturen
+					gespeichert, die in Abbildung <ref>fig_sammleklassenmethoden</ref> gezeigt werden.
+					<image>
+						<src>SammleKlassenMethoden</src>
+						<width>0.9</width>
+						<name>Klasse: SammleKlassenMethoden</name>
+						<description>Klassendiagramm: SammleKlassenMethoden</description>
+						<label>fig_sammleklassenmethoden</label>
+					</image>
+					ClassDef enthält alle wichtigen Informationen zu einer Klasse. Auch enthält diese eine 
+					Liste aller Methoden und Klassenvariablen.
+					MethodenDef enthält die Informationen über die Methoden in der Klasse. Es hat eine Liste 
+					der Parameter, was wiederum <v>VariablenDef</v>-Objekte sind.
+				</subsubsection>
+
+				<subsubsection name="DepthVarManager">
+					Dieses ist ein Helfer-Visitor, von dem einige andere Visitoren erben.
+					Dieser Visitor verwaltet die Klassenliste, die der Visitor <v>SammleKlassenMethoden</v>
+					zusammengestellt hat. Auch sammelt der Visitor methodenlokale Variablen auf. Da diese
+					auch blocklokal sein können, wird die Information <v>hierarchy</v> mitgeführt: Wenn ein neuer
+					Block geöffnet wird, bekommen alle vorhanden lokalen Variablen plus eins auf <v>hierarchy</v>.
+					Wenn ein Block geschlossen wird, bekommen alle lokalen Variablen minus eins auf <v>hierarchy</v>.
+					Wenn <v>hierarchy</v> nun &gt;= -1 ist, wird diese gelöscht. Dadurch sind zu jedem Zeitpunkt
+					nur die tatsächlich an dieser Stelle verfügbaren Variablen in der Liste.
+					Zudem stellt dieser Visitor Methoden bereit, um Variablen und Methoden zu suchen.
+				</subsubsection>
+				
+				<subsubsection name="ASTAddThis">
+					In der Sprache soll es möglich sein, Klassenvariablen und Methoden direkt anzusprechen, 
+					ohne das this zu verwenden. Allerdings ist es nicht möglich, direkt auf die Variablen
+					/ Methoden zuzugreifen. Daher wird hier überall - wo es notwendig ist - ein this vor
+					solchen Aufrufen generiert.
+					
+					Beispiel:
+					<listing>
+						+Klasse {
+							+a:num;
+							+methode() {
+								a := 5;
+								...
+							}
+						}
+					</listing>
+					Dann generiert dieser visitor das:
+					<listing>
+						this.a := 5;
+					</listing>
+				</subsubsection>
+
+				<subsubsection name="ASTDefaultConstructor">
+					Dieser Visitor erzeugt einen Default-Konstruktor in Klassen, in denen kein Konstruktor
+					vorhanden ist.
+					Außerdem überprüft er alle Klassendefinitionen auf die Angabe einer Oberklasse. Ist
+					keine Oberklasse angegeben, so wird explizit eine Vererbung von <v>Object</v> eingetragen.
+					Zuletzt wird die Initialisierung von Exemplarvariablen aus ihrer Deklaration in den Konstruktor
+					der Klasse verschoben.
+				</subsubsection>
+
+				<subsubsection name="ASTLiterals">
+					In diesem Visitor werden alle Zahl- und Stringliterale durch entsprechende Konstruktoraufrufe
+					ersetzt:
+					<listing>
+						x:num := 1;
+						s:str := "Hallo";
+					</listing>
+					Daraus wird:
+					<listing>
+						x:num := num.new(1);
+						s:str := str.new("Hallo");
+					</listing>
+					Die Konstruktoren befinden sich in der Core-Library und erhalten als Parameter die tatsächlichen
+					Literale (Typen <v>num_t</v> bzw. <v>char*</v>, siehe <v>Core.h</v> und <v>Core.c</v>),
+					woraus sie die entsprechenden Objekte konstruieren.
+				</subsubsection>
+
+				<subsubsection name="ASTOperators">
+					Alle Operatoren, die im Code verwendet werden, müssen zu Methodenaufrufen der entsprechenden
+					Objeke verwandelt werden, dies passiert in diesem Visitor.
+					Beispiel: Aus folgendem Code:
+					<listing>
+						a + 5
+						s + "\n"
+					</listing>
+					wird  
+					<listing>
+						a.addnum(5)
+						s.append("\n")
+					</listing>
+					In Kombination mit ASTLiterals würde also folgender Ausdruck:
+					<footnote>Der hier erzeugte Code wäre aber kein gültiger Naturel-Code, weil die Konstruktoren
+						von num und str nicht explizit aufgerufen werden dürfen.</footnote>
+					<listing>
+						x:num;
+						x := 5 + 3;
+					</listing>
+					zu folgendem:
+					<listing>
+						x:num;
+						x := num_new(5).addnum(num_new(3));
+					</listing>
+				</subsubsection>
+
+				<subsubsection name="ASTDotExpr">
+					<listing>
+						Fibonacci.new(10).getZahl().tostr()
+					</listing>
+					Solche Aufrufe werden vom Parser in einen <v>DOT-Baum</v> umgewandelt:
+					<listing>
+						ADotExp
+							AMethodcallExp: Fibonacci [109,63] (0)
+							ADotExp
+								AMethodcallExp: new [109,73] (1)
+									ANumExp: 10 [109,77]
+								ADotExp
+									AMethodcallExp: getZahl [109,81] (1)
+										ANoneExp
+									AMethodcallExp: tostr [109,91] (1)
+										ANoneExp
+					</listing>
+					
+					<!-- das "newnum" habe ich rausgenommen, um den Leser nicht zu verwirren -->
+					
+					Im ersten Schritt wird daraus eine flache Liste erstellt:
+					<listing>
+						AListExp
+							AMethodcallExp: Fibonacci [109,63] (0)
+							AMethodcallExp: new [109,73] (1)
+								ANumExp: 10 [109,77]
+							AMethodcallExp: getZahl [109,81] (1)
+								ANoneExp
+							AMethodcallExp: tostr [109,91] (1)
+								ANoneExp
+					</listing>
+					
+					In einem zweiten Schritt werden die Klassenaufrufe identifiziert (hier <v>Fibonacci</v>),
+					und mit der folgenden Klassenvariable / Methode zusammen in ein neuen Node gespeichert:
+					<listing>
+						AListExp
+							AMethodcalldefExp
+								AMethodcallExp: Fibonacci [0,0] (0)
+								AMethodcallExp: new [109,73] (1)
+									ANumExp: 10 [109,77]
+							AMethodcallExp: getZahl [109,81] (1)
+								ANoneExp
+							AMethodcallExp: tostr [109,91] (1)
+								ANoneExp
+					</listing>
+
+					Eine weitere Verarbeitung macht der Visitor <v>ASTDotListKorr</v>.
+				</subsubsection>
+
+				<subsubsection name="ASTCondKorr">
+					<listing>
+						if (a=b) {..}
+					</listing>
+					In den Bedingungen von den <v>if</v>s und <v>while</v>s soll nur eine Variable stehen.
+					Dieser Visitor erzeugt eine neue Variable, und baut daraus eine Zuweisung. Und in
+					das <v>if</v>/<v>while</v> kommt nur noch die neue Variable.
+					<listing>
+						x:bool := a=b;
+						if (x) {..}
+					</listing>
+					
+					Bei den <v>while</v>s wird zusätzlich noch dafür gesorgt, dass am Ende des while-Blocks
+					die Bedingung neu berechnet wird, indem einfach der Code verdoppelt wird:
+					<listing>
+						while (a=b) {
+							...
+						}
+					</listing>
+					wird zu
+					<listing>
+						x:bool := a=b;
+						while (x) {
+							...
+							x := a=b;
+						}
+					</listing>
+					
+				</subsubsection>
+
+				<subsubsection name="ASTDotListKorr">
+					Durch den Visitor <v>ASTDotExpr</v> hat man für das Programmfragment
+					<listing>
+						Fibonacci.new(10).getZahl().tostr()
+					</listing>
+					folgende Liste im AST:
+					<listing>
+						AListExp
+							AMethodcalldefExp
+								AMethodcallExp: Fibonacci [0,0] (0)
+								AMethodcallExp: new [109,73] (1)
+									ANumExp: 10 [109,77]
+							AMethodcallExp: getZahl [109,81] (1)
+								ANoneExp
+							AMethodcallExp: tostr [109,91] (1)
+								ANoneExp
+					</listing>
+					Es wird für jeden Methodenaufruf ein <v>this</v>-Parameter benötigt.
+					Daher muss diese Liste in einzelne Aufrufe aufgesplittet werden.
+					Dazu werden immer die zwei ersten Knoten der Liste zu einem einzelnen DOT
+					zusammengeführt. Das Ergebnis wird in eine neue Variable gespeichert. Diese
+					Variable wird dann am den Anfang der Liste gehängt.
+					Sollte das erste aber bereits eine Methode sein, so wird diese einzeln ausgeführt,
+					und in eine Variable gespeichert. Dadurch entsteht eine Reihenfolge von Aufrufen:  
+					<listing>
+						Variable1:Klasse1 := methode();
+						Variable2:Klasse2 := Variable1.methode2();
+						Variable3:Klasse3 := Variable2.methode3();
+					</listing>
+					Der Beispielcode sieht dann im AST so aus:
+					<listing>
+						ADeclarationStatement
+							ANamedVariable: !ListCorrFirst_43 [-1,-1]
+								ATypeType: str [-1,-1]
+									AFalseFlag
+								AMethodcalldefExp
+									AMethodcallExp: Fibonacci [0,0] (0)
+									AMethodcallExp: new [109,73] (1)
+										ANumExp: 10 [109,77]
+						ADeclarationStatement
+							ANamedVariable: !ListCorr_44 [-1,-1]
+								ATypeType: str [-1,-1]
+									AFalseFlag
+								ADotExp
+									AMethodcallExp: !ListCorrFirst_43 [-1,-1] (0)
+									AMethodcallExp: getZahl [109,81] (1)
+										ANoneExp
+						ADeclarationStatement
+							ANamedVariable: !ListCorr_45 [-1,-1]
+								ATypeType: str [77,9]
+									AFalseFlag
+								ADotExp
+									AMethodcallExp: !ListCorr_44 [-1,-1] (0)
+									AMethodcallExp: tostr [109,91] (1)
+										ANoneExp
+					</listing>
+					Der Code, der dem obigen Listing entspricht, wäre dieser: 
+					<footnote>
+						Achtung: Interne Variablennamen haben ein <q>!</q> davor, 
+						um so Kollisionen mit den Variablennamen aus dem Code zu vermeiden. 
+						Im C-Code werden alle Variablennamen umgewandelt. 
+					</footnote>
+					<listing>
+						!ListCorrFirst_43: str :=  Fibonacci.new(10);
+						!ListCorr_44: str := !ListCorrFirst_43.getZahl();
+						!ListCorr_45: str := !ListCorr_44.tostr();
+					</listing>
+				</subsubsection>
+				
+				<subsubsection name="ASTDeckKorr">
+					Der Visitor <v>ASTDeckKorr</v> trennt die Zuweisung von den Deklarationen. 
+					Aus:
+					<listing>
+						a:num := 5;
+					</listing>
+					wird:
+					<listing>
+						a:num;
+						a := 5;
+					</listing>
+				</subsubsection>
+
+				<subsubsection name="ASTVarCollect">
+					Der Visitor sammelt alle Variablendeklarationen aus einer Methode auf, und verschiebt
+					sie an den Anfang der Methode, da in ANSI-C zuerst alle Variablen deklariert werden
+					müssen.
+				</subsubsection>
+			</subsection>
+
+			<subsection name="Generatoren">
+				Aus einer Quelldatei <v>src.naturel</v> werden eine <v>.c</v> und eine <v>.h</v>-Datei
+				erzeugt, die den Namen der Klasse tragen, die die <v>main</v>-Methode enthält (Eine Quelldatei
+				darf mehr als eine Klasse enthalten). Diese werden anschliessen zusammen mit <v>Core.c</v>
+				vom <v>gcc</v> übersetzt.
+				<subsubsection name="GenHeader">
+					GenHeader erzeugt den Header. Dieser enthält:
+					<itemize>
+						<item>Makroguard</item>
+						<item>Core.h-Include</item>
+						<item>Typedefs von Klassen-Struct-Pointer: z.B.
+							<v>typedef struct SKlasse* Klasse;</v></item>
+						<item>Klassen-Structs mit Exemplarvariablen und Methoden als Funktionspointer</item>
+						<item>Prototypen der C-Funktionen, die die Methoden implementieren</item>
+						<item><v>extern</v>-Deklaration von Klassenvariablen</item>
+					</itemize>
+				</subsubsection>
+
+				<subsubsection name="GenCode">
+					GenCode erzeugt letztendlich aus dem transformierten AST den C-Code. Die erzeugte Datei
+					<e>Klasse</e><v>.c</v> enthält:
+					<itemize>
+						<item>Include von <e>Klasse</e><v>.h</v></item>
+						<item>Funktionen für Methodenimplementierung und Konstruktoren</item>
+						<item>Klassenvariablen als globale Variablen</item>
+						<item>Eine Funktion <v>fillClassVars()</v>, die von der <v>main</v>-Funktion
+							aufgerufen wird und die Klassenvariablen mit den jeweiligen Initialisierungswerten
+							füllt</item>
+						<item>Die <v>main</v>-Funktion, die ggf. den SIGSEGV-Handler registriert (Betriebssystem-
+							Callback-Funktion, falls das Programm einen Speicherzugriffsfehler verursacht),
+							die Funktion <v>fillClassVars()</v> aufruft, eine neue <v>str</v>-Liste erzeugt
+							und mit dem Inhalt von <v>argv</v> füllt, sowie die main-Methode der Klasse mit
+							der <v>str</v>-Liste als Parameter aufruft.</item>
+					</itemize>
+				</subsubsection>
+			</subsection>
+
+			<subsection name="Aufruf">
+				Der Compiler wird aufgerufen mittels <v>java naturel.Main</v> und wird über Kommandozeilenargumente
+				gesteuert. Dabei können folgende Optionen angegeben werden:
+				<itemize>
+					<item>-h oder -help: Gibt eine Meldung über die Nutzung aus, auch die Defaultwerte für die Optionen.</item>
+					<item>-version: Gibt die Version des Compilers aus.</item>
+					<item>-debug: Annotiert den erzeugten C-Code mit Debug-Kommentaren.</item>
+					<item>-v: Verbose: Gibt den AST und andere Informationen beim Kompilieren.</item>
+					<item>-c: Wie bei gcc: Kompilieren, aber nicht Linken.</item>
+					<item>-o name: Wie bei gcc: Legt Namen der Ausgabedatei fest.</item>
+					<item>-sigsegv: Aktiviert den eigenen SIGSEGV-Handler im kompilierten Programm. Achtung:
+						Das Programm kann anschließend nicht mehr mit externen Handlern wie <v>catchsegv</v>
+						verwendet werden.</item>
+					<item>-conly: Erzeugt C-Code, aber ruft keinen C-Compiler auf.</item>
+					<item>-compiler name: Setzt den Compiler, der aufgerufen werden soll, inklusive Parametern;
+						Default: <v>gcc -g -Wall -pedantic -ansi</v>.</item>
+					<item>-prettyprint: Gibt nur den Formatierten Quellcode aus.</item>
+					<item>datei: Der Name der zu kompilierenden <v>.naturel</v>-Datei, dieser muss als letzter Parameter
+						angegben werden. Das Verzeichnis, in dem die Datei liegt, muss auch <v>Core.h</v> und
+						<v>Core.c</v> enthalten.</item>
+				</itemize>
+				Beispielaufruf:
+				<listing>
+					# Kompilieren ohne Debug-Symbols (kein -g für gcc):
+					java naturel.Main -v -debug -o zahlenraten -compiler \
+					"gcc -Wall -pedantic -ansi" \
+					grammatik/zahlenraten.naturel
+				</listing>
+				Ausgabe des Kommandos: 
+				<listing>
+					(AST)
+					Writing grammatik/Zahlenraten.h
+					Writing grammatik/Zahlenraten.c
+					gcc -Wall -pedantic -ansi -I. -Igrammatik/ -o zahlenraten grammatik/Core.c grammatik/Zahlenraten.c
+					grammatik/Zahlenraten.c: In function 'Zahlenraten_new':
+					grammatik/Zahlenraten.c:59: warning: passing argument 1 of '((struct SDingens *)this)->setBlah' from
+					incompatible pointer type
+					grammatik/Zahlenraten.c: In function 'initZahlenraten':
+					grammatik/Zahlenraten.c:67: warning: assignment from incompatible pointer type
+				</listing>
+				Die <q>passing argument from incompatible pointer type</q> und <q>assignment from incompatible pointer
+				type</q> Meldungen sind normal und können ignoriert werden (Quelle: Zuweisung von Funktionspointern
+				für Unterklassen).
+			</subsection>
+		</section>
+
+		<!--
+		<section name="asdf">
+			<itemize>
+				<item>asdf</item>
+			</itemize>
+		</section>
+		-->
+	</body>
+</document>
+

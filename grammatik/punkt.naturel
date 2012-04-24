@@ -1,0 +1,28 @@
++Punkt {
+	-x:num;
+	-y:num;
+
+	+getX():num { return(x); }
+	+getY():num { return(y); }
+	++new(px:num, py:num) { x := px; y := py; }
+
+	+addierePunkt(p:Punkt) {
+		x := x + p.getX();
+		y := y + p.getY();
+	}
+
+	+tostr():str {
+		return("[" + x.tostr() + "," + y.tostr() + "]");
+	}
+
+	++main(args:str[]):num {
+		p1:Punkt := Punkt.new(1, 2);
+		p2:Punkt := Punkt.new(3, 4);
+		out("Punkt 1: " + p1.tostr() + "\n");
+		out("Punkt 2: " + p2.tostr() + "\n");
+		p1.addierePunkt(p2);
+		out("Punkt 1: " + p1.tostr() + "\n");
+		return(0);
+	}
+}
+

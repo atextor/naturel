@@ -1,0 +1,119 @@
+OO-Sprache:
+-Klassen (Semantik Java)
+-(Einfach-)Vererbung
+-Übersetzung nach C
+-Compiler-Sprache beliebig
+
+Meilenstein 1: Sprachdefinition
+Meilenstein 2: Syntax
+        Tokenizer
+        Parser
+        Baum
+        Pretty Printer
+        (Rewrites)
+Meilenstein 3: Semantische Analyse
+Meilenstein 4: C-Code-Generierung
+
+Sprachentwurf
+-Schlüsselwörter, Trenner, Klammern, Bezeichner, Literale
+-Syntax, Klassen, Methoden, Konstruktor
+-Ausdrücke, Befehle, Schleife, if
+
+
+Naturel - Naturel (ist die) Andreas Textor Und Ralph Erdt Language
+
++paket.Klasse < Oberklasse : I1,I2 {
+        /* kommentar  */
+
+        +x:num := 4;
+        -y:fnum;
+        +z:str;
+        -g:fnum := 1.5;
+
+        +methode(x:num := 2, y:num):num {
+        }
+        
+        #methode(s:str):fnum {
+        }
+
+        +methode3():(num,num,str) {
+                return (1,2,"hallo");
+        }
+        
+        ++main(args:str[]):num {..
+        	return 0;
+        }
+        +methode4 {
+                t:(x:num, y:num, z:str) := methode3();
+                
+                u:num[] := [5..6,8,9];
+                if 4 in u  <--->  if u.contains(4) ?
+                for a in [..4]
+                
+                r:(num[],num[]) := ([5..9],[12..14]); 
+                a:num[] := r.field(0);
+        }
+        +methode5();
+}
+Festhalten:
++-# Visibility,muss
+verdopplung für static (++ -- ##)
+Syntax an UML angelehnt
+Keine auesseren Variablen ueberlagern
+Keine Semantik in Formatierung
+Zahlenbereiche: Semantische Analyse: Pruefung auf doppeltes Vorkommen in Bereichen und ggf. Warnung
+Nullpointer-Abfragen
+-for-syntax   for b:num in [1..10]
+-typecasts x:Sohn := vaterobjekt as Sohn  (entspricht:  Sohn x = (Sohn)vaterobjekt)
+-konstruktor: new()
+-sichtbarkeiten: +,-,#, mit static: ++,--,##
+-garbagecollector (reference-counter in objekten)
+-datentypen: num, bool, fnum, str, list
+-Vererbung: class Sohnklasse [< Mutterklasse] [: Interface1, Interface2,...]
+-Interface: schluesselwort ++: interface SohnInterface [< Interface1, ..]
+-set=> x:num[]   x.size()...
+-default-werte in tupeln:  x:(n1:num := 1, n2:num := 2) vs. x:(num, num) := (1, 2)
+-kein switch/case
+-operatoren:  :=, +, -, *, /, +=, -=, *=, /=, =, ^, ^=, |, &, |=, &=, !, !=, >, <, .., ",", ;
+-core-methoden: write, writeln, escape, gc
+-toString + equals sinnvoll gefuellt!
+
+use package.AnderesObjekt;
+class core.Object {
+	++new():Object {
+		
+	}
+	+toString():str{
+		return "";
+	}
+	+free() {
+		
+	}
+	+equals(anderes:Object):bool{
+		return this = anderes;
+	}
+}
+
+x:MeinObjekt[1,2,"hallo",(5,4)]
+
+class MeinObjekt {
+	++new(x:num) {
+	}
+	++new(x:str) {
+	}
+	++new(y:num,z:num) {
+	}
+}
+
+
+
+Zu Besprechen:
+-Tupel:  x:(num,num) --> welchen typ hat x.field(0) ?
+
+
+
+
+
+
+
+

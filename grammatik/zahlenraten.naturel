@@ -1,0 +1,83 @@
+/* Naturel Beispielprogramm 3: Zahlenraten */
+
++Zufallsgenerator {
+	// Initialisierungen für Zufallszahlengenerator
+	#a:num := 137153;
+	#c:num := 17;
+	#m:num := 524288; // 2^19
+	#seed:num := 0;
+	
+	+getRand():num {
+		x:num := a * seed + c;
+		seed := x % m;
+		return(seed);
+	}
+}
+
++Zahlenraten < Zufallsgenerator {
+	// Gewonnene Spiele
+	-gewonnen:num := 0;
+	
+	// Strings
+	--strVersuch:str := "Ihr Versuch: ";
+	--strErraten:str := "Erraten - die Zahl war ";
+	--strZuGross:str := "Ihre Zahl ist zu gross!\n";
+	--strZuKlein:str := "Ihre Zahl ist zu klein!\n";
+	--strNochmal:str := "Noch ein Spiel? [1 = weiter, 0 = ende]: ";
+	
+	// Konstruktor: Setzt Random-Seed
+	++new(randSeed:num) {
+		seed := randSeed;
+	}
+	
+	// Überschrieben: Gibt Statistik aus
+	+tostr():str {
+		result:str := "Sie haben bis jetzt " + gewonnen.tostr() + " Spiel";
+		if (gewonnen > 1) {
+			result := result.append("e");
+		}
+		result := result + " gewonnen.\n";
+		return(result);
+	}
+	
+	// Spielmethode
+	+spiel() {
+		zahl:num := getRand() % 100;
+		versuch:num;
+		anzahlVersuche:num := 0;
+			
+		while (1 = 1) {
+			out(strVersuch);
+			versuch := in().asnum();
+			anzahlVersuche := anzahlVersuche  + 1;
+			
+			if (versuch = zahl) {
+				out(strErraten + zahl.tostr() + ".\n");
+				out("Sie haben " + anzahlVersuche.tostr() + " Versuche gebraucht.\n");
+				gewonnen := gewonnen + 1;
+				return();
+			}
+			if (versuch > zahl) {
+				out(strZuGross);
+			}
+			if (versuch < zahl) {
+				out(strZuKlein);
+			}
+		}
+		return();
+	}
+	
+	++main(args:str[]):num {
+		out("Seed: ");
+		z:Zahlenraten := Zahlenraten.new(in().asnum());
+		weiter:num := 1;
+		
+		while (weiter = 1) {
+			z.spiel();
+			out(z.tostr());
+			out(strNochmal);
+			weiter := in().asnum();
+		}
+		return(0);
+	}
+}

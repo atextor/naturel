@@ -1,0 +1,10 @@
+/* Naturel Beispielprogramm 1: Hello World*/
+
++HelloWorld {
+	++main(_:str[]):num {
+		out("Wie heissen Sie? ");
+		input:str := in();
+		out("Guten Tag " + input + "!\n");
+		return(0);
+	}
+}
