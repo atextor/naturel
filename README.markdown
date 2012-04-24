@@ -7,7 +7,7 @@ Note: The detailed documentation is available in German only, sorry!
 Introduction
 ------------
 
-Naturel (not to confuse with [NATURAL](http://en.wikipedia.org/wiki/NATURAL) is a programming language
+Naturel (not to confuse with [NATURAL](http://en.wikipedia.org/wiki/NATURAL)) is a programming language
 that was developed by Ralph Erdt and Andreas Textor for the Compiler Construction class at the
 University of Applied Sciences Wiesbaden in winter semester 07/08.
 Naturel stands for "Naturel is the Andreas Textor Und Ralph Erdt Language" ("und" is the german word for "and").
