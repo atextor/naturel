@@ -93,12 +93,15 @@ Quickstart
 ----------
 
 Help:
+
 	java naturel.Main -h
 
 Compile:
+
 	java naturel.Main -o zahlenraten grammatik/zahlenraten.naturel
 
 Generate parser:
+
 	cd grammatik
 	./mkProjekt.sh
 
